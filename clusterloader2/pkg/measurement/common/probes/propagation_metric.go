@@ -32,6 +32,8 @@ import (
 const (
 	defaultDNSPropagationProbeNamespaceIndex = 1
 	defaultDNSPropagationProbeSampleCount    = 10
+	defaultDNSPropagationProbeCPURequest     = "100m"
+	defaultDNSPropagationProbeMemoryRequest  = "100Mi"
 )
 
 // NewPropagationMetricPrometheus tries to parse latency data from results of Prometheus query from propagation probe.
@@ -82,15 +84,25 @@ func InitializeTemplateMappingForDNSPropagationProbe(config *measurement.Config)
 	if err != nil {
 		return nil, err
 	}
+	DNSPropagationProbeCPURequest, err := util.GetStringOrDefault(config.Params, "DNSPropagationProbeCpuRequest", defaultDNSPropagationProbeCPURequest)
+	if err != nil {
+		return nil, err
+	}
+	DNSPropagationProbeMemoryRequest, err := util.GetStringOrDefault(config.Params, "DNSPropagationProbeMemoryRequest", defaultDNSPropagationProbeMemoryRequest)
+	if err != nil {
+		return nil, err
+	}
 	namespacePrefix := config.ClusterFramework.GetAutomanagedNamespacePrefix()
 	DNSPropagationProbeNamespace := fmt.Sprintf("%s-%d", namespacePrefix, DNSPropagationProbeNamespaceIndex)
 	klog.V(2).Infof("DNS propagation namespace, GetAutomanagedNamespacePrefix= %s, DNSPropagationProbeNamespaceIndex=%d, DNSPropagationProbeNamespace=%s",
 		namespacePrefix, DNSPropagationProbeNamespaceIndex, DNSPropagationProbeNamespace)
 	return map[string]interface{}{
-		"DNSPropagationProbeNamespace":   DNSPropagationProbeNamespace,
-		"DNSPropagationProbeService":     DNSPropagationProbeService,
-		"DNSPropagationProbeStatefulSet": DNSPropagationProbeStatefulSet,
-		"DNSPropagationProbePodCount":    DNSPropagationProbePodCount,
-		"DNSPropagationProbeSampleCount": DNSPropagationProbeSampleCount,
+		"DNSPropagationProbeNamespace":     DNSPropagationProbeNamespace,
+		"DNSPropagationProbeService":       DNSPropagationProbeService,
+		"DNSPropagationProbeStatefulSet":   DNSPropagationProbeStatefulSet,
+		"DNSPropagationProbePodCount":      DNSPropagationProbePodCount,
+		"DNSPropagationProbeSampleCount":   DNSPropagationProbeSampleCount,
+		"DNSPropagationProbeCpuRequest":    DNSPropagationProbeCPURequest,
+		"DNSPropagationProbeMemoryRequest": DNSPropagationProbeMemoryRequest,
 	}, nil
 }
